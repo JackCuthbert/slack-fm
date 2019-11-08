@@ -1,6 +1,22 @@
-# slack-fm ![Travis CI](https://api.travis-ci.org/JackCuthbert/slack-fm.svg?branch=master) ![Docker Pulls](https://img.shields.io/docker/pulls/jckcthbrt/slack-fm)
+<p align="center">
+  <img src="./header.png" alt="slack-fm" />
+  <br />
+  <img src="https://api.travis-ci.org/JackCuthbert/slack-fm.svg?branch=master" alt="Travis CI" />
+  <img src="https://img.shields.io/docker/pulls/jckcthbrt/slack-fm" alt="Docker Pulls" />
+</p>
 
-A tiny service to automatically update your Slack status when you have something playing on Last.fm.
+## Introduction
+
+**Slack-fm** is a tiny self-hosted service that automatically update your Slack
+status from your Last.fm profile.
+
+1. Updates Slack status when something is playing
+1. Only updates during 9am and 5pm (configurable)
+1. Weekends are ignored (configurable)
+
+It looks like this:
+
+![Slack Preview](./slack-preview.png)
 
 ## Prerequisites
 
@@ -19,12 +35,13 @@ Variable | Required | Default | y tho
 `SLACK_TOKEN` | yes | | Personal "legacy" token for updating your Slack status
 `TZ` | no | `Australia/Melbourne` | Set the timezone
 `ACTIVE_HOURS_START` | no | `9` | The hour of the day to start updating your Slack status
-`ACTIVE_HOURS_NED` | no | `17` | The hour of the day to stop updating your Slack status
+`ACTIVE_HOURS_END` | no | `17` | The hour of the day to stop updating your Slack status
 `UPDATE_INTERVAL` | no | `1` | The time in minutes to wait until updating your Slack Status
 
 ## Hosting
 
-I designed this to be easily self hosted, just use the Docker image!
+I designed this to be easily self hosted, just use the Docker image! It's
+automatically built and versioned on [Docker Hub](https://hub.docker.com/repository/docker/jckcthbrt/slack-fm/tags) based on GitHub activity.
 
 ### Docker run
 
@@ -36,7 +53,7 @@ docker run \
   jckcthbrt/slack-fm:latest
 ```
 
-### Docker Compose
+### Docker compose
 
 ```yml
 version: '3.7'
