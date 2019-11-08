@@ -3,14 +3,17 @@ declare namespace LastFM {
     artist: {
       mbid: string
       '#text': string
-    },
-    album: { mbid: '', '#text': 'American Sun' },
-    image: [ [Object], [Object], [Object], [Object] ],
+    }
+    album: {
+      mbid: string
+      '#text': string
+    }
+    image: any[]
     streamable: string
     date: {
       uts: string
       '#text': string
-    },
+    }
     url: string
     name: string
     mbid: string
