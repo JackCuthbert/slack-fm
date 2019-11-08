@@ -11,7 +11,7 @@
 
 ## Introduction
 
-**Slack-fm** is a tiny self-hosted service that automatically update your Slack
+**Slack-fm** is a tiny self-hosted service that automatically updates your Slack
 status from your Last.fm profile.
 
 1. Updates Slack status when something is playing
@@ -30,17 +30,18 @@ It looks like this:
 
 ## Configuration
 
-All configuration is available via environment variables
+All configuration is available via environment variables. Values _without_ defaults are required.
 
-Variable | Required | Default | y tho
----------|----------|---------|-------
-`LAST_FM_KEY` | yes | | Access to Last.fm data
-`LAST_FM_USERNAME` | yes | | Which user to get track info for
-`SLACK_TOKEN` | yes | | Personal "legacy" token for updating your Slack status
-`TZ` | no | `Australia/Melbourne` | Set the timezone
-`ACTIVE_HOURS_START` | no | `9` | The hour of the day to start updating your Slack status
-`ACTIVE_HOURS_END` | no | `17` | The hour of the day to stop updating your Slack status
-`UPDATE_INTERVAL` | no | `1` | The time in minutes to wait until updating your Slack Status
+Variable | Default | Description
+---------|---------|------
+`LAST_FM_KEY` | | Access to Last.fm data
+`LAST_FM_USERNAME` | | Which user to get track info for
+`SLACK_TOKEN` | | Personal "legacy" token for updating your Slack status
+`TZ` | `Australia/Melbourne` | Set the timezone
+`ACTIVE_HOURS_START` | `9` | The hour of the day to start updating your Slack status
+`ACTIVE_HOURS_END` | `17` | The hour of the day to stop updating your Slack status
+`UPDATE_INTERVAL` | `1` | The time in minutes to wait until updating your Slack Status
+`UPDATE_WEEKENDS` | `undefined` | Provide any value to enable status updates during the weekend
 
 ## Hosting
 
