@@ -1,4 +1,4 @@
-# slack-fm
+# slack-fm ![Travis CI](https://api.travis-ci.org/JackCuthbert/slack-fm.svg?branch=master) ![Docker Pulls](https://img.shields.io/docker/pulls/jckcthbrt/slack-fm)
 
 A tiny service to automatically update your Slack status when you have something playing on Last.fm.
 
