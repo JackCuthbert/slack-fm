@@ -1,8 +1,12 @@
 {
   "name": "slack-fm",
   "version": "0.1.0",
-  "description": "",
-  "main": "index.js",
+  "description": "Sync your Slack status with Last.fm",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/JackCuthbert/slack-fm.git"
+  },
+  "main": "dist/index.js",
   "scripts": {
     "start": "TS_NODE_FILES=true ts-node src/index.ts",
     "start:prod": "node dist/index.ts",
@@ -10,7 +14,7 @@
     "build": "tsc"
   },
   "keywords": [],
-  "author": "",
+  "author": "Jack Cuthbert <jckcthbrt@gmail.com>",
   "license": "ISC",
   "devDependencies": {
     "@types/date-fns": "^2.6.0",
