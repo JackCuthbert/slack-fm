@@ -4,11 +4,14 @@ declare namespace LastFM {
       mbid: string
       '#text': string
     }
+    '@attr'?: {
+      nowplaying: 'true' | 'false'
+    }
     album: {
       mbid: string
       '#text': string
     }
-    image: any[]
+    image: Image[]
     streamable: string
     date: {
       uts: string
@@ -17,6 +20,12 @@ declare namespace LastFM {
     url: string
     name: string
     mbid: string
+  }
+
+  interface Image {
+    size: 'small' | 'medium' | 'large' | 'extralarge'
+    /** URL */
+    '#text' : string
   }
 
   namespace APIResponse {

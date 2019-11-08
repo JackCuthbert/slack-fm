@@ -2,6 +2,7 @@ declare namespace Slack {
   namespace APIResponse {
     interface UsersProfileSet {
       ok: boolean
+      error?: string
       profile: {
         avatar_hash: string
         status_text: string

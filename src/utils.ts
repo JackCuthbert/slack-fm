@@ -1,6 +1,7 @@
 import Joi from '@hapi/joi'
 import * as config from './config'
 
+/** Validate the user-configurable options in config */
 export async function validateConfig (cfg: typeof config) {
   const schema = Joi.object({
     slackToken: Joi
@@ -9,7 +10,8 @@ export async function validateConfig (cfg: typeof config) {
       .required()
       .messages({
         'string.base': 'SLACK_TOKEN must be defined',
-        'string.min': 'SLACK_TOKEN must be defined'
+        'string.min': 'SLACK_TOKEN must be defined',
+        'string.empty': 'SLACK_TOKEN must be defined'
       }),
     lastFMKey: Joi
       .string()
@@ -17,7 +19,8 @@ export async function validateConfig (cfg: typeof config) {
       .required()
       .messages({
         'string.base': 'LAST_FM_KEY must be defined',
-        'string.min': 'LAST_FM_KEY must be defined'
+        'string.min': 'LAST_FM_KEY must be defined',
+        'string.empty': 'LAST_FM_KEY must be defined'
       }),
     lastFMUsername: Joi
       .string()
@@ -25,7 +28,8 @@ export async function validateConfig (cfg: typeof config) {
       .required()
       .messages({
         'string.base': 'LAST_FM_USERNAME must be defined',
-        'string.min': 'LAST_FM_USERNAME must be defined'
+        'string.min': 'LAST_FM_USERNAME must be defined',
+        'string.empty': 'LAST_FM_USERNAME must be defined'
       }),
     activeHours: Joi.object({
       start: Joi
@@ -70,4 +74,9 @@ export async function validateConfig (cfg: typeof config) {
       end: cfg.activeHours.end,
     }
   })
+}
+
+/** Returns a LastFM track if it's considered now playing */
+export function getNowPlaying (tracks: LastFM.Track[]) {
+  return tracks.find(track => track['@attr']?.nowplaying === 'true')
 }

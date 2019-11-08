@@ -2,7 +2,7 @@ import axios, { AxiosResponse } from 'axios'
 import chalk from 'chalk'
 import { getTime, getHours, isWeekend } from 'date-fns'
 import * as config from './config'
-import { validateConfig } from './validateConfig'
+import { validateConfig, getNowPlaying } from './utils'
 
 /**
  * Get the most recent track from a users LastFM profile
@@ -21,8 +21,16 @@ async function getLastFmTrack (username: string) {
     }
   }
 
-  const { data }: LastFMResponse = await axios.get(url, opts)
-  return data
+  try {
+    const { data }: LastFMResponse = await axios.get(url, opts)
+    return data
+  } catch (error) {
+    if (error.response) {
+      throw Error(error.response.data.message)
+    }
+
+    throw error
+  }
 }
 
 /**
@@ -44,8 +52,17 @@ async function updateSlackStatus (status: string, emoji = ':headphones:') {
     headers: { Authorization: `Bearer ${config.slack.token}` }
   }
 
-  const { data }: SlackResponse = await axios.post(url, body, params)
-  return data
+  try {
+    const { data }: SlackResponse = await axios.post(url, body, params)
+    if (!data.ok) throw Error(data?.error)
+    return data
+  } catch (error) {
+    if (error.response) {
+      throw Error(error.response.data.message)
+    }
+
+    throw error
+  }
 }
 
 async function main () {
@@ -58,31 +75,35 @@ async function main () {
 
   const { start, end } = config.activeHours
   if (currentHour < start || currentHour > end) {
-    console.log(`${botLog} Outside active hours (${start}-${end}), skipping...`)
+    console.log(`${botLog} Outside active hours (${start}-${end}), skipping`)
     return
   }
 
   if (!config.updateWeekends && isWeekend(currentTime)) {
-    console.log(`${botLog} Weekend updates not enabled, skipping...`)
+    console.log(`${botLog} Weekend updates not enabled, skipping`)
     return
   }
 
-  console.log(`${lfmLog} Getting track info...`)
+  console.log(`${lfmLog} Getting track info`)
   const track = await getLastFmTrack(config.lastFM.username)
+  const nowPlaying = getNowPlaying(track.recenttracks.track)
+
+  if (nowPlaying === undefined) {
+    console.log(`${botLog} Nothing playing, skipping`)
+    return
+  }
 
   let status = ''
-  status += track.recenttracks.track[0].name
+  status += nowPlaying.name
   status += ' • '
-  status += track.recenttracks.track[0].artist['#text']
+  status += nowPlaying.artist['#text']
 
-  console.log(`${slkLog} Setting status to "${status}"...`)
+  console.log(`${slkLog} Setting status to "${status}"`)
   await updateSlackStatus(status)
-
-  console.log(`${botLog} Waiting ${config.updateInterval} min${config.updateInterval > 1 ? 's' : ''}...`)
 }
 
 validateConfig(config)
-  .then(main) // First run, show any warnings
+  .then(main)
   .then(() => {
     setInterval(main, config.updateInterval * 60000)
   })
@@ -90,5 +111,4 @@ validateConfig(config)
     console.error(chalk.red(error.message))
     process.exit(1)
   })
-
 
