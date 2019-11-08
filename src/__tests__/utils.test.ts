@@ -19,7 +19,7 @@ describe('utils', () => {
         }
       }
 
-      expect(getNowPlaying([track as any])).toEqual(undefined)
+      expect(getNowPlaying([track as any])).toBeUndefined()
     })
 
     it('returns undefined when @attr.nowplaying is undefined', () => {
@@ -30,7 +30,7 @@ describe('utils', () => {
         }
       }
 
-      expect(getNowPlaying([track as any])).toEqual(undefined)
+      expect(getNowPlaying([track as any])).toBeUndefined()
     })
   })
 })
