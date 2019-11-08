@@ -1,8 +1,12 @@
 <p align="center">
   <img src="./header.png" alt="slack-fm" />
   <br />
-  <img src="https://api.travis-ci.org/JackCuthbert/slack-fm.svg?branch=master" alt="Travis CI" />
-  <img src="https://img.shields.io/docker/pulls/jckcthbrt/slack-fm" alt="Docker Pulls" />
+  <a href="https://travis-ci.org/JackCuthbert/slack-fm">
+    <img src="https://api.travis-ci.org/JackCuthbert/slack-fm.svg?branch=master" alt="Travis CI" />
+  </a>
+  <a href="https://hub.docker.com/repository/docker/jckcthbrt/slack-fm">
+    <img src="https://img.shields.io/docker/pulls/jckcthbrt/slack-fm" alt="Docker Pulls" />
+  </a>
 </p>
 
 ## Introduction
