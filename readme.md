@@ -37,7 +37,7 @@ Variable | Default | Description
 `LAST_FM_KEY` | | Access to Last.fm data
 `LAST_FM_USERNAME` | | Which user to get track info for
 `SLACK_TOKEN` | | Personal "legacy" token for updating your Slack status
-`TZ` | `Australia/Melbourne` | Set the timezone
+`TZ` | `UTC` | Set the timezone
 `ACTIVE_HOURS_START` | `9` | The hour of the day to start updating your Slack status
 `ACTIVE_HOURS_END` | `17` | The hour of the day to stop updating your Slack status
 `UPDATE_INTERVAL` | `1` | The time in minutes to wait until updating your Slack Status
@@ -55,6 +55,7 @@ docker run \
   -e SLACK_TOKEN=<YOUR_SLACK_TOKEN> \
   -e LAST_FM_KEY=<YOUR_LAST_FM_KEY> \
   -e LAST_FM_USERNAME=<LAST_FM_USERNAME> \
+  -e TZ=<YOUR_TIMEZONE> \
   jckcthbrt/slack-fm:latest
 ```
 
@@ -68,6 +69,7 @@ services:
     container_name: slack_fm
     restart: unless-stopped
     environment:
+      TZ: <YOUR_TIMEZONE>
       SLACK_TOKEN: <YOUR_SLACK_TOKEN>
       LAST_FM_KEY: <YOUR_LAST_FM_KEY>
       LAST_FM_USERNAME: <LAST_FM_USERNAME>
