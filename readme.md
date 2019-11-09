@@ -79,3 +79,15 @@ services:
 docker-compose up
 ```
 
+## Contributing
+
+This should be relatively simple to set up and run, all that's required is Node
+v12 and some environment variables.
+
+1. Fork this repository and clone your version
+1. Install dependencies with `npm install`
+1. Run the tests with `npm test`
+1. Set up your environment variables as above ([direnv](https://direnv.net) is great for this)
+1. Start the app locally with `npm start`
+1. Commit and push your changes then submit a PR back to this repository
+
