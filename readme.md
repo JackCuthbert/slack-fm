@@ -14,9 +14,13 @@
 **Slack-fm** is a tiny self-hosted service that automatically updates your Slack
 status from your Last.fm profile.
 
-1. Updates Slack status when something is playing
-1. Only updates during 9am and 5pm (configurable)
-1. Weekends are ignored (configurable)
+1. Updates your Slack status when
+    * something is playing and a custom status hasn't been set
+    * the time is between 9am and 5pm (configurable)
+    * it's not a weekend (configurable)
+1. Clears your Slack status when
+    * a custom status has not been set, nothing is playing, and inside active hours
+    * a custom status has not been set and outside active hours
 
 It looks like this:
 

@@ -2,7 +2,7 @@ import axios, { AxiosResponse } from 'axios'
 import chalk from 'chalk'
 import { getTime, getHours, isWeekend } from 'date-fns'
 import * as config from './config'
-import { validateConfig, getNowPlaying } from './utils'
+import { validateConfig, getNowPlaying, shouldSetStatus } from './utils'
 
 /**
  * Get the most recent track from a users LastFM profile
@@ -38,13 +38,13 @@ async function getLastFmTrack (username: string) {
  *
  * [API Doc](https://api.slack.com/methods/users.profile.set)
  */
-async function updateSlackStatus (status: string, emoji = ':headphones:') {
-  type SlackResponse = AxiosResponse<Slack.APIResponse.UsersProfileSet>
+async function updateSlackStatus (status: string) {
+  type SlackResponse = AxiosResponse<Slack.APIResponse.UsersProfile>
   const url = `${config.slack.apiUrl}/users.profile.set`
   const body = {
     profile: {
       status_text: status,
-      status_emoji: emoji,
+      status_emoji: status !== '' ? ':headphones:' : '',
       status_expiration: 0
     }
   }
@@ -54,8 +54,33 @@ async function updateSlackStatus (status: string, emoji = ':headphones:') {
 
   try {
     const { data }: SlackResponse = await axios.post(url, body, params)
-    if (!data.ok) throw Error(data?.error)
+    if (!data.ok) throw Error(data.error)
     return data
+  } catch (error) {
+    if (error.response) {
+      throw Error(error.response.data.message)
+    }
+
+    throw error
+  }
+}
+
+/**
+ * Return the current profile (including status) of the authenticated user
+ *
+ * [API Doc](https://api.slack.com/methods/users.profile.get)
+ */
+async function getSlackProfile (): Promise<Slack.Profile> {
+  type SlackResponse = AxiosResponse<Slack.APIResponse.UsersProfile>
+  const url = `${config.slack.apiUrl}/users.profile.get`
+  const opts = {
+    headers: { Authorization: `Bearer ${config.slack.token}` }
+  }
+
+  try {
+    const { data }: SlackResponse = await axios.get(url, opts)
+    if (!data.ok) throw Error(data.error)
+    return data.profile
   } catch (error) {
     if (error.response) {
       throw Error(error.response.data.message)
@@ -70,31 +95,47 @@ async function main () {
   const slkLog = chalk.greenBright('[Slack]')
   const botLog = chalk.blue('[Bot]')
 
+  // Status restrictions
+  console.log(`${slkLog} Getting Slack profile`)
+  const currentProfile = await getSlackProfile()
+  if (!shouldSetStatus(currentProfile)) {
+    console.log(`${botLog} Custom status detected, skipping`)
+    return
+  }
+
+  // Time restrictions
   const currentTime = getTime(new Date())
   const currentHour = getHours(currentTime)
 
   const { start, end } = config.activeHours
   if (currentHour < start || currentHour > end) {
     console.log(`${botLog} Outside active hours (${start}-${end}), skipping`)
+    console.log(`${slkLog} Clearing Slack status`)
+    await updateSlackStatus('')
     return
   }
 
   if (!config.updateWeekends && isWeekend(currentTime)) {
     console.log(`${botLog} Weekend updates not enabled, skipping`)
+    console.log(`${slkLog} Clearing Slack status`)
+    await updateSlackStatus('')
     return
   }
 
+  // Now playing restrictions
   console.log(`${lfmLog} Getting track info`)
   const track = await getLastFmTrack(config.lastFM.username)
   const nowPlaying = getNowPlaying(track.recenttracks.track)
 
   if (nowPlaying === undefined) {
     console.log(`${botLog} Nothing playing, skipping`)
+    console.log(`${slkLog} Clearing Slack status`)
+    await updateSlackStatus('')
     return
   }
 
-  let status = ''
-  status += nowPlaying.name
+  // Update!
+  let status = nowPlaying.name
   status += ' • '
   status += nowPlaying.artist['#text']
 
