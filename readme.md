@@ -7,6 +7,9 @@
   <a href="https://hub.docker.com/repository/docker/jckcthbrt/slack-fm">
     <img src="https://img.shields.io/docker/pulls/jckcthbrt/slack-fm" alt="Docker Pulls" />
   </a>
+  <br />
+  <a href="https://www.producthunt.com/posts/slack-fm?utm_source=badge-featured&utm_medium=badge&utm_souce=badge-slack-fm" target="_blank"><img src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=173963&theme=dark" alt="slack-fm - Self-hosted service to sync Last.fm with your Slack status | Product Hunt Embed" style="width: 250px; height: 54px;" width="250px" height="54px" />
+  </a>
 </p>
 
 ## Introduction
