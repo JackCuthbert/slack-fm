@@ -1,4 +1,6 @@
 declare namespace Slack {
+  type Presence = 'active' | 'away'
+
   interface Profile {
     avatar_hash: string
     status_text: string
@@ -23,6 +25,12 @@ declare namespace Slack {
       ok: boolean
       error?: string
       profile: Slack.Profile
+    }
+
+    interface UsersGetPresence {
+      ok: boolean
+      error?: string
+      presence: Slack.Presence
     }
   }
 }

@@ -66,6 +66,31 @@ async function updateSlackStatus (status: string) {
 }
 
 /**
+ * Return the current presence of the authenticated user
+ *
+ * [API Doc](https://api.slack.com/methods/users.getPresence)
+ */
+async function getSlackPresence (): Promise<Slack.Presence> {
+  type SlackResponse = AxiosResponse<Slack.APIResponse.UsersGetPresence>
+  const url = `${config.slack.apiUrl}/users.getPresence`
+  const params = {
+    headers: { Authorization: `Bearer ${config.slack.token}` }
+  }
+
+  try {
+    const { data }: SlackResponse = await axios.get(url, params)
+    if (!data.ok) throw Error(data.error)
+    return data.presence
+  } catch (error) {
+    if (error.response) {
+      throw Error(error.response.data.message)
+    }
+
+    throw error
+  }
+}
+
+/**
  * Return the current profile (including status) of the authenticated user
  *
  * [API Doc](https://api.slack.com/methods/users.profile.get)
@@ -100,6 +125,15 @@ async function main () {
   const currentProfile = await getSlackProfile()
   if (!shouldSetStatus(currentProfile)) {
     console.log(`${botLog} Custom status detected, skipping`)
+    return
+  }
+
+  console.log(`${slkLog} Getting Slack presence`)
+  const currentPresence = await getSlackPresence()
+  if (currentPresence === 'away') {
+    console.log(`${botLog} User presence is "away", skipping`)
+    console.log(`${slkLog} Clearing Slack status`)
+    await updateSlackStatus('')
     return
   }
 
