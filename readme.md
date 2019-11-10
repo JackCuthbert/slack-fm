@@ -41,6 +41,8 @@ Variable | Default | Description
 `LAST_FM_KEY` | | Access to Last.fm data
 `LAST_FM_USERNAME` | | Which user to get track info for
 `SLACK_TOKEN` | | Personal "legacy" token for updating your Slack status
+`SLACK_EMOJI` | `:headphones:` | Specify which emoji to use in the status
+`SLACK_SEPARATOR` | `•` | Specify which character to use as a separator between the track name and artist
 `TZ` | `UTC` | Set the timezone
 `ACTIVE_HOURS_START` | `9` | The hour of the day to start updating your Slack status
 `ACTIVE_HOURS_END` | `17` | The hour of the day to stop updating your Slack status

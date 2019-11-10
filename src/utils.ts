@@ -84,7 +84,7 @@ export function getNowPlaying (tracks: LastFM.Track[]) {
 /**
  * Returns true if the profile should be updated.
  *
- * It assumes that if a status is using the `:headphones:` emoji and contains a
+ * It assumes that if a status is using the configured emoji and contains a
  * middle dot character (`•`) that the app has previously been used to update
  * the status and should continue to.
  *
@@ -93,6 +93,6 @@ export function getNowPlaying (tracks: LastFM.Track[]) {
  */
 export function shouldSetStatus (profile: Slack.Profile) {
   if (profile.status_emoji === '' && profile.status_text === '') return true
-  if (profile.status_emoji === ':headphones:' && profile.status_text.includes(' • ')) return true
+  if (profile.status_emoji === config.slack.emoji && profile.status_text.includes(' • ')) return true
   return false
 }

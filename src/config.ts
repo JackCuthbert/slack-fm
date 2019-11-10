@@ -3,6 +3,8 @@ const {
   LAST_FM_SECRET = '',
   LAST_FM_USERNAME = '',
   SLACK_TOKEN = '',
+  SLACK_EMOJI = ':headphones:',
+  SLACK_SEPARATOR = '•',
   TZ = 'Australia/Melbourne',
   ACTIVE_HOURS_START = '9',
   ACTIVE_HOURS_END = '17',
@@ -19,7 +21,9 @@ export const lastFM = {
 
 export const slack = {
   apiUrl: 'https://slack.com/api',
-  token: SLACK_TOKEN
+  token: SLACK_TOKEN,
+  emoji: SLACK_EMOJI,
+  separator: SLACK_SEPARATOR
 }
 
 export const activeHours = {

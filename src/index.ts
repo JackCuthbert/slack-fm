@@ -45,7 +45,7 @@ async function setSlackStatus (status: string) {
   const body = {
     profile: {
       status_text: status,
-      status_emoji: status !== '' ? ':headphones:' : '',
+      status_emoji: status !== '' ? config.slack.emoji : '',
       status_expiration: 0
     }
   }
@@ -159,7 +159,9 @@ async function main () {
 
   // Update!
   let status = nowPlaying.name
-  status += ' • '
+  status += ' '
+  status += config.slack.separator
+  status += ' '
   status += nowPlaying.artist['#text']
 
   console.log(`${LOG_SLK} Setting status to "${status}"`)
