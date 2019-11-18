@@ -1,6 +1,6 @@
 {
   "name": "slack-fm",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "description": "Sync your Slack status with Last.fm",
   "repository": {
     "type": "git",
