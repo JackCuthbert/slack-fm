@@ -171,13 +171,20 @@ async function main () {
   await setSlackStatus(status)
 }
 
+/** Passed to setInterval and does not kill the application on error */
+const loop = () => main().catch(error => {
+  console.error(error)
+})
+
 validateConfig(config)
   .then(main)
-  .then(() => {
-    setInterval(main, config.updateInterval * 60000)
-  })
+  .then(setInterval.bind(
+    null,
+    loop,
+    config.updateInterval * 60000)
+  )
   .catch(error => {
-    console.error(chalk.red(error.message))
+    console.error(error)
     process.exit(1)
   })
 
