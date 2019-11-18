@@ -9,11 +9,13 @@ const LOG_SLK = chalk.greenBright('[Slack]')
 const LOG_BOT = chalk.blue('[Bot]')
 
 /**
- * Get the most recent track from a users LastFM profile
+ * Get the most recent tracks from a users LastFM profile
  *
  * [API Doc](https://www.last.fm/api/show/user.getRecentTracks)
  */
 async function getLastFmTrack (username: string) {
+  console.log(`${LOG_LFM} Getting track info`)
+
   type LastFMResponse = AxiosResponse<LastFM.APIResponse.RecentTracks>
   const url = `${config.lastFM.apiUrl}/?method=user.getrecenttracks`
   const opts = {
@@ -27,7 +29,7 @@ async function getLastFmTrack (username: string) {
 
   try {
     const { data }: LastFMResponse = await axios.get(url, opts)
-    return data
+    return data.recenttracks
   } catch (error) {
     if (error.response) throw Error(error.response.data.message)
     throw error
@@ -69,6 +71,8 @@ async function setSlackStatus (status: string) {
  * [API Doc](https://api.slack.com/methods/users.getPresence)
  */
 async function getSlackPresence (): Promise<Slack.Presence> {
+  console.log(`${LOG_SLK} Getting Slack presence`)
+
   type SlackResponse = AxiosResponse<Slack.APIResponse.UsersGetPresence>
   const url = `${config.slack.apiUrl}/users.getPresence`
   const params = {
@@ -91,6 +95,8 @@ async function getSlackPresence (): Promise<Slack.Presence> {
  * [API Doc](https://api.slack.com/methods/users.profile.get)
  */
 async function getSlackProfile (): Promise<Slack.Profile> {
+  console.log(`${LOG_SLK} Getting Slack profile`)
+
   type SlackResponse = AxiosResponse<Slack.APIResponse.UsersProfile>
   const url = `${config.slack.apiUrl}/users.profile.get`
   const opts = {
@@ -131,7 +137,6 @@ async function main () {
   }
 
   // Status restrictions
-  console.log(`${LOG_SLK} Getting Slack presence`)
   const currentPresence = await getSlackPresence()
   if (currentPresence === 'away') {
     console.log(`${LOG_BOT} User presence is "away", skipping`)
@@ -139,7 +144,6 @@ async function main () {
     return
   }
 
-  console.log(`${LOG_SLK} Getting Slack profile`)
   const currentProfile = await getSlackProfile()
   if (!shouldSetStatus(currentProfile)) {
     console.log(`${LOG_BOT} Custom status detected, skipping`)
@@ -147,9 +151,8 @@ async function main () {
   }
 
   // Now playing restrictions
-  console.log(`${LOG_LFM} Getting track info`)
-  const track = await getLastFmTrack(config.lastFM.username)
-  const nowPlaying = getNowPlaying(track.recenttracks.track)
+  const recentTracks = await getLastFmTrack(config.lastFM.username)
+  const nowPlaying = getNowPlaying(recentTracks.track)
 
   if (nowPlaying === undefined) {
     console.log(`${LOG_BOT} Nothing playing, skipping`)
