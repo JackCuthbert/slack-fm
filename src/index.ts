@@ -131,18 +131,18 @@ async function main () {
   }
 
   // Status restrictions
-  console.log(`${LOG_SLK} Getting Slack profile`)
-  const currentProfile = await getSlackProfile()
-  if (!shouldSetStatus(currentProfile)) {
-    console.log(`${LOG_BOT} Custom status detected, skipping`)
-    return
-  }
-
   console.log(`${LOG_SLK} Getting Slack presence`)
   const currentPresence = await getSlackPresence()
   if (currentPresence === 'away') {
     console.log(`${LOG_BOT} User presence is "away", skipping`)
     await clearSlackStatus()
+    return
+  }
+
+  console.log(`${LOG_SLK} Getting Slack profile`)
+  const currentProfile = await getSlackProfile()
+  if (!shouldSetStatus(currentProfile)) {
+    console.log(`${LOG_BOT} Custom status detected, skipping`)
     return
   }
 
