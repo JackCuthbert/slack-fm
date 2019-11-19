@@ -1,3 +1,4 @@
+/* eslint-disable camelcase */
 declare namespace Slack {
   type Presence = 'active' | 'away'
 

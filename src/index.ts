@@ -199,4 +199,3 @@ validateConfig(config)
   .then(main)
   .then(loop)
   .catch(handleError)
-

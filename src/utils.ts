@@ -35,33 +35,31 @@ export async function validateConfig (cfg: typeof config) {
       start: Joi
         .number()
         .min(0).max(23)
-        .custom((v, helpers)=> {
-          if (v > cfg.activeHours.end) {
-            return helpers.error('startafterend')
-          }
-        })
+        .custom((v, helpers) => v > cfg.activeHours.end
+          ? helpers.error('startafterend')
+          : null
+        )
         .required()
         .messages({
           'number.base': 'ACTIVE_HOURS_START must be a number',
           'number.min': 'ACTIVE_HOURS_START must be equal to or greater than 0',
           'number.max': 'ACTIVE_HOURS_START must be equal to or less than 23',
-          'startafterend': 'ACTIVE_HOURS_START must be before ACTIVE_HOURS_END'
+          startafterend: 'ACTIVE_HOURS_START must be before ACTIVE_HOURS_END'
         }),
       end: Joi
         .number()
         .min(0).max(23)
-        .custom((v, helpers)=> {
-          if (v < cfg.activeHours.start) {
-            return helpers.error('startbeforeend')
-          }
-        })
+        .custom((v, helpers) => v < cfg.activeHours.start
+          ? helpers.error('startbeforeend')
+          : null
+        )
         .required()
         .messages({
           'number.base': 'ACTIVE_HOURS_END must be a number',
           'number.min': 'ACTIVE_HOURS_END must be equal to or greater than 0',
           'number.max': 'ACTIVE_HOURS_END must be equal to or less than 23',
-          'startbeforeend': 'ACTIVE_HOURS_END must be after ACTIVE_HOURS_START'
-        }),
+          startbeforeend: 'ACTIVE_HOURS_END must be after ACTIVE_HOURS_START'
+        })
     }).required()
   })
 
@@ -71,7 +69,7 @@ export async function validateConfig (cfg: typeof config) {
     lastFMUsername: cfg.lastFM.username,
     activeHours: {
       start: cfg.activeHours.start,
-      end: cfg.activeHours.end,
+      end: cfg.activeHours.end
     }
   })
 }
