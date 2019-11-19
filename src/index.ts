@@ -1,123 +1,16 @@
-import * as Sentry from '@sentry/node'
-import axios, { AxiosResponse } from 'axios'
-import chalk from 'chalk'
 import { getTime, getHours, isWeekend } from 'date-fns'
 import * as config from './config'
-import { validateConfig, getNowPlaying, shouldSetStatus } from './utils'
-
-const LOG_LFM = chalk.red('[LastFM]')
-const LOG_SLK = chalk.greenBright('[Slack]')
-const LOG_BOT = chalk.blue('[Bot]')
-
-/**
- * Get the most recent tracks from a users LastFM profile
- *
- * [API Doc](https://www.last.fm/api/show/user.getRecentTracks)
- */
-async function getLastFmTrack (username: string) {
-  console.log(`${LOG_LFM} Getting track info`)
-
-  type LastFMResponse = AxiosResponse<LastFM.APIResponse.RecentTracks>
-  const url = `${config.lastFM.apiUrl}/?method=user.getrecenttracks`
-  const opts = {
-    params: {
-      format: 'json',
-      api_key: config.lastFM.apiKey,
-      user: username,
-      limit: 1
-    }
-  }
-
-  try {
-    const { data }: LastFMResponse = await axios.get(url, opts)
-    return data.recenttracks
-  } catch (error) {
-    if (error.response) throw Error(error.response.data.message)
-    throw error
-  }
-}
-
-/**
- * Set a users status on slack with some message and emoji
- *
- * [API Doc](https://api.slack.com/methods/users.profile.set)
- */
-async function setSlackStatus (status: string) {
-  type SlackResponse = AxiosResponse<Slack.APIResponse.UsersProfile>
-  const url = `${config.slack.apiUrl}/users.profile.set`
-  const body = {
-    profile: {
-      status_text: status,
-      status_emoji: status !== '' ? config.slack.emoji : '',
-      status_expiration: 0
-    }
-  }
-  const params = {
-    headers: { Authorization: `Bearer ${config.slack.token}` }
-  }
-
-  try {
-    const { data }: SlackResponse = await axios.post(url, body, params)
-    if (!data.ok) throw Error(data.error)
-    return data
-  } catch (error) {
-    if (error.response) throw Error(error.response.data.message)
-    throw error
-  }
-}
-
-/**
- * Return the current presence of the authenticated user
- *
- * [API Doc](https://api.slack.com/methods/users.getPresence)
- */
-async function getSlackPresence (): Promise<Slack.Presence> {
-  console.log(`${LOG_SLK} Getting Slack presence`)
-
-  type SlackResponse = AxiosResponse<Slack.APIResponse.UsersGetPresence>
-  const url = `${config.slack.apiUrl}/users.getPresence`
-  const params = {
-    headers: { Authorization: `Bearer ${config.slack.token}` }
-  }
-
-  try {
-    const { data }: SlackResponse = await axios.get(url, params)
-    if (!data.ok) throw Error(data.error)
-    return data.presence
-  } catch (error) {
-    if (error.response) throw Error(error.response.data.message)
-    throw error
-  }
-}
-
-/**
- * Return the current profile (including status) of the authenticated user
- *
- * [API Doc](https://api.slack.com/methods/users.profile.get)
- */
-async function getSlackProfile (): Promise<Slack.Profile> {
-  console.log(`${LOG_SLK} Getting Slack profile`)
-
-  type SlackResponse = AxiosResponse<Slack.APIResponse.UsersProfile>
-  const url = `${config.slack.apiUrl}/users.profile.get`
-  const opts = {
-    headers: { Authorization: `Bearer ${config.slack.token}` }
-  }
-
-  try {
-    const { data }: SlackResponse = await axios.get(url, opts)
-    if (!data.ok) throw Error(data.error)
-    return data.profile
-  } catch (error) {
-    if (error.response) throw Error(error.response.data.message)
-    throw error
-  }
-}
-
-async function clearSlackStatus () {
-  console.log(`${LOG_SLK} Clearing Slack status`)
-  await setSlackStatus('')
-}
+import {
+  clearSlackStatus,
+  getSlackPresence,
+  getSlackProfile,
+  setSlackStatus,
+  shouldSetStatus
+} from './utils/slack'
+import { handleError, enableErrorTracking } from './utils/errors'
+import { getLastFmTrack, getNowPlaying } from './utils/lastFm'
+import { log } from './utils/log'
+import { validateConfig } from './utils/validation'
 
 async function main () {
   // Time restrictions
@@ -126,13 +19,13 @@ async function main () {
 
   const { start, end } = config.activeHours
   if (currentHour < start || currentHour > end) {
-    console.log(`${LOG_BOT} Outside active hours (${start}-${end}), skipping`)
+    log(`Outside active hours (${start}-${end}), skipping`)
     await clearSlackStatus()
     return
   }
 
   if (!config.updateWeekends && isWeekend(currentTime)) {
-    console.log(`${LOG_BOT} Weekend updates not enabled, skipping`)
+    log('Weekend updates not enabled, skipping')
     await clearSlackStatus()
     return
   }
@@ -140,14 +33,14 @@ async function main () {
   // Status restrictions
   const currentPresence = await getSlackPresence()
   if (currentPresence === 'away') {
-    console.log(`${LOG_BOT} User presence is "away", skipping`)
+    log('User presence is "away", skipping')
     await clearSlackStatus()
     return
   }
 
   const currentProfile = await getSlackProfile()
   if (!shouldSetStatus(currentProfile)) {
-    console.log(`${LOG_BOT} Custom status detected, skipping`)
+    log('Custom status detected, skipping')
     return
   }
 
@@ -156,7 +49,7 @@ async function main () {
   const nowPlaying = getNowPlaying(recentTracks.track)
 
   if (nowPlaying === undefined) {
-    console.log(`${LOG_BOT} Nothing playing, skipping`)
+    log('Nothing playing, skipping')
     await clearSlackStatus()
     return
   }
@@ -168,25 +61,8 @@ async function main () {
   status += ' '
   status += nowPlaying.artist['#text']
 
-  console.log(`${LOG_SLK} Setting status to "${status}"`)
+  log(`Setting status to "${status}"`, 'slack')
   await setSlackStatus(status)
-}
-
-/** Generic error handler for async function failures */
-function handleError (error: Error) {
-  console.error(error)
-  Sentry.captureException(error)
-}
-
-/** If a Sentry DSN is supplied, enable error tracking */
-function enableErrorTracking () {
-  if (config.sentryDsn !== undefined) {
-    console.log(`${LOG_BOT} Sentry error reporting enabled`)
-    Sentry.init({
-      dsn: config.sentryDsn,
-      attachStacktrace: true
-    })
-  }
 }
 
 async function loop () {
