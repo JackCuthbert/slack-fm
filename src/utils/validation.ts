@@ -1,5 +1,5 @@
 import Joi from '@hapi/joi'
-import * as config from './config'
+import * as config from '../config'
 
 /** Validate the user-configurable options in config */
 export async function validateConfig (cfg: typeof config) {
@@ -74,23 +74,3 @@ export async function validateConfig (cfg: typeof config) {
   })
 }
 
-/** Returns a LastFM track if it's considered now playing */
-export function getNowPlaying (tracks: LastFM.Track[]) {
-  return tracks.find(track => track['@attr']?.nowplaying === 'true')
-}
-
-/**
- * Returns true if the profile should be updated.
- *
- * It assumes that if a status is using the configured emoji and contains a
- * middle dot character (`•`) that the app has previously been used to update
- * the status and should continue to.
- *
- * This ensures that any custom status the user has set is not overridden and
- * empty statuses are updated accordingly.
- */
-export function shouldSetStatus (profile: Slack.Profile) {
-  if (profile.status_emoji === '' && profile.status_text === '') return true
-  if (profile.status_emoji === config.slack.emoji && profile.status_text.includes(' • ')) return true
-  return false
-}
