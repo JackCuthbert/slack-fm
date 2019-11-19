@@ -9,7 +9,8 @@ const {
   ACTIVE_HOURS_START = '9',
   ACTIVE_HOURS_END = '17',
   UPDATE_INTERVAL = '1',
-  UPDATE_WEEKENDS
+  UPDATE_WEEKENDS,
+  SENTRY_DSN
 } = process.env
 
 export const lastFM = {
@@ -30,6 +31,8 @@ export const activeHours = {
   start: Number(ACTIVE_HOURS_START),
   end: Number(ACTIVE_HOURS_END)
 }
+
+export const sentryDsn = SENTRY_DSN
 
 /** Time in minutes to request new Last.fm data */
 export const updateInterval = Number(UPDATE_INTERVAL)

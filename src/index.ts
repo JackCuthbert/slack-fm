@@ -1,3 +1,4 @@
+import * as Sentry from '@sentry/node'
 import axios, { AxiosResponse } from 'axios'
 import chalk from 'chalk'
 import { getTime, getHours, isWeekend } from 'date-fns'
@@ -171,20 +172,31 @@ async function main () {
   await setSlackStatus(status)
 }
 
-/** Passed to setInterval and does not kill the application on error */
-const loop = () => main().catch(error => {
+/** Generic error handler for async function failures */
+function handleError (error: Error) {
   console.error(error)
-})
+  Sentry.captureException(error)
+}
+
+/** If a Sentry DSN is supplied, enable error tracking */
+function enableErrorTracking () {
+  if (config.sentryDsn !== undefined) {
+    console.log(`${LOG_BOT} Sentry error reporting enabled`)
+    Sentry.init({
+      dsn: config.sentryDsn,
+      attachStacktrace: true
+    })
+  }
+}
+
+async function loop () {
+  const interval = config.updateInterval * 60000
+  setInterval(() => main().catch(handleError), interval)
+}
 
 validateConfig(config)
+  .then(enableErrorTracking)
   .then(main)
-  .then(setInterval.bind(
-    null,
-    loop,
-    config.updateInterval * 60000)
-  )
-  .catch(error => {
-    console.error(error)
-    process.exit(1)
-  })
+  .then(loop)
+  .catch(handleError)
 
