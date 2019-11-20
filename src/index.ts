@@ -18,7 +18,7 @@ async function main () {
   const currentHour = getHours(currentTime)
 
   const { start, end } = config.activeHours
-  if (currentHour < start || currentHour > end) {
+  if (currentHour >= start || currentHour < end) {
     log(`Outside active hours (${start}-${end}), skipping`)
     await clearSlackStatus()
     return
