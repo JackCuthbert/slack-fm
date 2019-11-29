@@ -54,10 +54,18 @@ async function main () {
   }
 
   const track = await getLastFmTrack(nowPlaying.name, nowPlaying.artist['#text'])
-  const status = `${track.name} ${config.slack.separator} ${track.artist.name}`
 
+  if (track !== undefined) {
+    const status = `${track.name} ${config.slack.separator} ${track.artist.name}`
+    log(`Setting status to "${status}"`, 'slack')
+    await setSlackStatus(status, Number(track.duration))
+    return
+  }
+
+  log('Unable to find detailed track info, falling back to recent track', 'lastfm')
+  const status = `${nowPlaying.name} ${config.slack.separator} ${nowPlaying.artist['#text']}`
   log(`Setting status to "${status}"`, 'slack')
-  await setSlackStatus(status, Number(track.duration))
+  await setSlackStatus(status)
 }
 
 async function loop () {

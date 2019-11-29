@@ -35,7 +35,7 @@ export async function getRecentLastFmTracks (username: string) {
  *
  * [API Doc](https://www.last.fm/api/show/track.getInfo)
  */
-export async function getLastFmTrack (track: string, artist: string) {
+export async function getLastFmTrack (track: string, artist: string): Promise<LastFM.Track | undefined> {
   log(`Getting track info for "${track}" by ${artist}`, 'lastfm')
 
   type LastFMResponse = AxiosResponse<LastFM.APIResponse.TrackGetInfo>
