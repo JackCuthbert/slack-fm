@@ -1,14 +1,17 @@
 import { getTime, getHours, isWeekend } from 'date-fns'
 import * as config from './config'
 import {
-  clearSlackStatus,
   getSlackPresence,
   getSlackProfile,
   setSlackStatus,
   shouldSetStatus
 } from './utils/slack'
+import {
+  getLastFmTrack,
+  getNowPlaying,
+  getRecentLastFmTracks
+} from './utils/lastFm'
 import { handleError, enableErrorTracking } from './utils/errors'
-import { getLastFmTrack, getNowPlaying } from './utils/lastFm'
 import { log } from './utils/log'
 import { validateConfig } from './utils/validation'
 
@@ -20,13 +23,11 @@ async function main () {
   const { start, end } = config.activeHours
   if (currentHour < start || currentHour >= end) {
     log(`Outside active hours (${start}-${end}), skipping`)
-    await clearSlackStatus()
     return
   }
 
   if (!config.updateWeekends && isWeekend(currentTime)) {
     log('Weekend updates not enabled, skipping')
-    await clearSlackStatus()
     return
   }
 
@@ -34,7 +35,6 @@ async function main () {
   const currentPresence = await getSlackPresence()
   if (currentPresence === 'away') {
     log('User presence is "away", skipping')
-    await clearSlackStatus()
     return
   }
 
@@ -45,24 +45,19 @@ async function main () {
   }
 
   // Now playing restrictions
-  const recentTracks = await getLastFmTrack(config.lastFM.username)
+  const recentTracks = await getRecentLastFmTracks(config.lastFM.username)
   const nowPlaying = getNowPlaying(recentTracks.track)
 
   if (nowPlaying === undefined) {
     log('Nothing playing, skipping')
-    await clearSlackStatus()
     return
   }
 
-  // Update!
-  let status = nowPlaying.name
-  status += ' '
-  status += config.slack.separator
-  status += ' '
-  status += nowPlaying.artist['#text']
+  const track = await getLastFmTrack(nowPlaying.name, nowPlaying.artist['#text'])
+  const status = `${track.name} ${config.slack.separator} ${track.artist.name}`
 
   log(`Setting status to "${status}"`, 'slack')
-  await setSlackStatus(status)
+  await setSlackStatus(status, Number(track.duration))
 }
 
 async function loop () {

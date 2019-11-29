@@ -1,22 +1,38 @@
 import axios, { AxiosResponse } from 'axios'
 import * as config from '../config'
 import { log } from './log'
+import { getUnixTime } from 'date-fns'
+
+/**
+ * Add the duration returned from LastFM (ms) to the current unix time
+ *
+ * @param duration Duration of song in milliseconds
+ */
+export function calcExpiration (duration: number) {
+  return getUnixTime(new Date()) + (duration / 1000)
+}
 
 /**
  * Set a users status on slack with some message and emoji
  *
  * [API Doc](https://api.slack.com/methods/users.profile.set)
+ *
+ * @param status The status text to set
+ * @param duration The time in seconds to keep the state
+ *
  */
-export async function setSlackStatus (status: string) {
+export async function setSlackStatus (status: string, duration?: number) {
   type SlackResponse = AxiosResponse<Slack.APIResponse.UsersProfile>
   const url = `${config.slack.apiUrl}/users.profile.set`
+
   const body = {
     profile: {
       status_text: status,
       status_emoji: status !== '' ? config.slack.emoji : '',
-      status_expiration: 0
+      status_expiration: duration ? calcExpiration(duration) : 0
     }
   }
+
   const params = {
     headers: { Authorization: `Bearer ${config.slack.token}` }
   }
@@ -77,11 +93,6 @@ export async function getSlackProfile (): Promise<Slack.Profile> {
     if (error.response) throw Error(error.response.data.message)
     throw error
   }
-}
-
-export async function clearSlackStatus () {
-  log('Clearing user status', 'slack')
-  await setSlackStatus('')
 }
 
 /**
