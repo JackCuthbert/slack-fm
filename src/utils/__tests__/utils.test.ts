@@ -3,7 +3,7 @@ import { getNowPlaying } from '../lastFm'
 describe('lastfm', () => {
   describe('getNowPlaying', () => {
     it('returns a now playing track', () => {
-      const track: Partial<LastFM.Track> = {
+      const track: Partial<LastFM.RecentTrack> = {
         '@attr': {
           nowplaying: 'true'
         }
@@ -13,7 +13,7 @@ describe('lastfm', () => {
     })
 
     it('returns undefined when nowplaying = false', () => {
-      const track: Partial<LastFM.Track> = {
+      const track: Partial<LastFM.RecentTrack> = {
         '@attr': {
           nowplaying: 'false'
         }
@@ -23,7 +23,7 @@ describe('lastfm', () => {
     })
 
     it('returns undefined when @attr.nowplaying is undefined', () => {
-      const track: Partial<LastFM.Track> = {
+      const track: Partial<LastFM.RecentTrack> = {
         artist: {
           mbid: '',
           '#text': ''

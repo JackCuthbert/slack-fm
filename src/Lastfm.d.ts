@@ -1,5 +1,5 @@
 declare namespace LastFM {
-  interface Track {
+  interface RecentTrack {
     artist: {
       mbid: string
       '#text': string
@@ -22,6 +22,37 @@ declare namespace LastFM {
     mbid: string
   }
 
+  interface Tag {
+    name: string
+    url: string
+  }
+
+  interface Track {
+    name: string
+    url: string
+    duration: string
+    streamable: {
+      '#text': string
+      fulltrack: string
+    }
+    listeners: string
+    playcount: string
+    artist: {
+      name: string
+      mbid: string
+      url: string
+    }
+    album: {
+      artist: string
+      title: string
+      url: string
+      image: Image[]
+    }
+    toptags: {
+      tag: Tag[]
+    }
+  }
+
   interface Image {
     size: 'small' | 'medium' | 'large' | 'extralarge'
     /** URL */
@@ -29,7 +60,7 @@ declare namespace LastFM {
   }
 
   namespace APIResponse {
-    interface RecentTracks {
+    interface UserGetRecentTracks {
       recenttracks: {
         '@attr': {
           page: string
@@ -38,8 +69,12 @@ declare namespace LastFM {
           perPage: string
           totalPages: string
         }
-        track: Track[]
+        track: RecentTrack[]
       }
+    }
+
+    interface TrackGetInfo {
+      track: Track
     }
   }
 }

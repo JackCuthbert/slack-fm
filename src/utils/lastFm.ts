@@ -7,10 +7,10 @@ import { log } from './log'
  *
  * [API Doc](https://www.last.fm/api/show/user.getRecentTracks)
  */
-export async function getLastFmTrack (username: string) {
-  log('Getting track info', 'lastfm')
+export async function getRecentLastFmTracks (username: string) {
+  log(`Getting recent track info for "${config.lastFM.username}"`, 'lastfm')
 
-  type LastFMResponse = AxiosResponse<LastFM.APIResponse.RecentTracks>
+  type LastFMResponse = AxiosResponse<LastFM.APIResponse.UserGetRecentTracks>
   const url = `${config.lastFM.apiUrl}/?method=user.getrecenttracks`
   const opts = {
     params: {
@@ -29,7 +29,37 @@ export async function getLastFmTrack (username: string) {
     throw error
   }
 }
+
+/**
+ * Get the detailed track info given a track name and artist
+ *
+ * [API Doc](https://www.last.fm/api/show/track.getInfo)
+ */
+export async function getLastFmTrack (track: string, artist: string) {
+  log(`Getting track info for "${track}" by ${artist}`, 'lastfm')
+
+  type LastFMResponse = AxiosResponse<LastFM.APIResponse.TrackGetInfo>
+  const url = `${config.lastFM.apiUrl}/?method=track.getInfo`
+  const opts = {
+    params: {
+      artist,
+      track,
+      format: 'json',
+      api_key: config.lastFM.apiKey,
+      limit: 1
+    }
+  }
+
+  try {
+    const { data }: LastFMResponse = await axios.get(url, opts)
+    return data.track
+  } catch (error) {
+    if (error.response) throw Error(error.response.data.message)
+    throw error
+  }
+}
+
 /** Returns a LastFM track if it's considered now playing */
-export function getNowPlaying (tracks: LastFM.Track[]) {
+export function getNowPlaying (tracks: LastFM.RecentTrack[]) {
   return tracks.find(track => track['@attr']?.nowplaying === 'true')
 }
