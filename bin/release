@@ -1,0 +1,8 @@
+#!/bin/bash
+if [ "$TRAVIS_BRANCH" == "master" ]; then
+  npm run release
+  exit 0
+fi
+
+echo "Not on master branch, no release required"
+exit 0
