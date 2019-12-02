@@ -29,7 +29,7 @@ export async function setSlackStatus (status: string, duration?: number) {
     profile: {
       status_text: status,
       status_emoji: status !== '' ? config.slack.emoji : '',
-      status_expiration: duration ?? 0
+      status_expiration: duration !== undefined ? calcExpiration(duration) : 0
     }
   }
 
