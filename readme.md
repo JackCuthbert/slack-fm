@@ -51,10 +51,11 @@ Variable | Default | Description
 `SLACK_EMOJI` | `:headphones:` | Specify which emoji to use in the status
 `SLACK_SEPARATOR` | `•` | Specify which character to use as a separator between the track name and artist
 `TZ` | `UTC` | Set the timezone
-`ACTIVE_HOURS_START` | `9` | The hour of the day to start updating your Slack status
-`ACTIVE_HOURS_END` | `17` | The hour of the day to stop updating your Slack status
+`ACTIVE_HOURS_START` | `8` | The hour of the day to start updating your Slack status
+`ACTIVE_HOURS_END` | `18` | The hour of the day to stop updating your Slack status
 `UPDATE_INTERVAL` | `1` | The time in minutes to wait until updating your Slack Status
 `UPDATE_WEEKENDS` | `undefined` | Provide any value to enable status updates during the weekend
+`UPDATE_EXPIRATION` | `15` | The time in minutes to use as a default status expiration length
 `SENTRY_DSN` | `undefined` | Optionally provide a Sentry DSN to enable error reporting
 
 ## Hosting
