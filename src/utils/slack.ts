@@ -18,7 +18,7 @@ export function calcExpiration (duration: number) {
  * [API Doc](https://api.slack.com/methods/users.profile.set)
  *
  * @param status The status text to set
- * @param duration The time in seconds to keep the state
+ * @param duration The time in milliseconds to keep the state
  *
  */
 export async function setSlackStatus (status: string, duration?: number) {
@@ -29,7 +29,7 @@ export async function setSlackStatus (status: string, duration?: number) {
     profile: {
       status_text: status,
       status_emoji: status !== '' ? config.slack.emoji : '',
-      status_expiration: duration ? calcExpiration(duration) : 0
+      status_expiration: duration ?? 0
     }
   }
 
