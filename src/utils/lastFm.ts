@@ -63,3 +63,9 @@ export async function getLastFmTrack (track: string, artist: string): Promise<La
 export function getNowPlaying (tracks: LastFM.RecentTrack[]) {
   return tracks.find(track => track['@attr']?.nowplaying === 'true')
 }
+
+/** Determines if the recent track is equal to the cached track */
+export function trackIsEqual (recent: LastFM.RecentTrack, cached?: LastFM.Track) {
+  if (cached === undefined) return false
+  return recent.name === cached.name && recent.artist['#text'] === cached.artist.name
+}

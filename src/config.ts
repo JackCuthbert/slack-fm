@@ -9,6 +9,7 @@ const {
   ACTIVE_HOURS_START = '8',
   ACTIVE_HOURS_END = '18',
   UPDATE_INTERVAL = '1',
+  UPDATE_EXPIRATION = '10',
   UPDATE_WEEKENDS,
   SENTRY_DSN
 } = process.env
@@ -37,5 +38,8 @@ export const sentryDsn = SENTRY_DSN
 /** Time in minutes to request new Last.fm data */
 export const updateInterval = Number(UPDATE_INTERVAL)
 export const updateWeekends = !!UPDATE_WEEKENDS
+
+/** Time in minutes to use as a default expiration time */
+export const updateExpiration = Number(UPDATE_EXPIRATION)
 
 export const tz = TZ

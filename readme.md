@@ -55,7 +55,7 @@ Variable | Default | Description
 `ACTIVE_HOURS_END` | `18` | The hour of the day to stop updating your Slack status
 `UPDATE_INTERVAL` | `1` | The time in minutes to wait until updating your Slack Status
 `UPDATE_WEEKENDS` | `undefined` | Provide any value to enable status updates during the weekend
-`UPDATE_EXPIRATION` | `15` | The time in minutes to use as a default status expiration length
+`UPDATE_EXPIRATION` | `10` | The time in minutes to use as a default status expiration length
 `SENTRY_DSN` | `undefined` | Optionally provide a Sentry DSN to enable error reporting
 
 ## Hosting
