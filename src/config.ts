@@ -6,8 +6,8 @@ const {
   SLACK_EMOJI = ':headphones:',
   SLACK_SEPARATOR = '•',
   TZ = 'Australia/Melbourne',
-  ACTIVE_HOURS_START = '9',
-  ACTIVE_HOURS_END = '17',
+  ACTIVE_HOURS_START = '8',
+  ACTIVE_HOURS_END = '18',
   UPDATE_INTERVAL = '1',
   UPDATE_WEEKENDS,
   SENTRY_DSN
