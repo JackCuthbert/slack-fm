@@ -24,14 +24,36 @@ declare namespace Slack {
   namespace APIResponse {
     interface UsersProfile {
       ok: boolean
+      /** Not returned if `ok === true` */
       error?: string
-      profile: Slack.Profile
+      /** Not returned if `error === true` */
+      profile?: Slack.Profile
     }
 
     interface UsersGetPresence {
       ok: boolean
+      /** Not returned if `ok === true` */
       error?: string
-      presence: Slack.Presence
+      /** Not returned if `error === true` */
+      presence?: Slack.Presence
+    }
+
+    interface UsersProfileSet {
+      ok: boolean
+      /** Not returned if `ok === true` */
+      error?: string
+      /** Not returned if `error === true` */
+      profile?: Slack.Profile
+    }
+  }
+
+  namespace APIRequest {
+    interface UsersProfileSet {
+      profile: {
+        status_text: string
+        status_emoji: string
+        status_expiration: number
+      }
     }
   }
 }
