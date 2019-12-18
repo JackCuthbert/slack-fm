@@ -15,19 +15,18 @@
 ## Introduction
 
 **Slack-fm** is a tiny self-hosted service that automatically updates your Slack
-status from your Last.fm profile.
+status from your Last.fm profile. It updates your Slack status when all the
+following conditions are met:
 
-1. Updates your Slack status when all the following conditions are met:
-    * the user is not set to "away"
-    * a custom status hasn't been set
-    * something is now playing on Last.fm
-    * the time is between 9am and 5pm (configurable)
-    * it's not a weekend (configurable)
-1. Clears your Slack status when any of the following conditions are met:
-    * a custom status hasn't been set and the user is set to "away"
-    * a custom status hasn't been set, nothing is playing, and inside active
-    hours
-    * a custom status hasn't been set and outside active hours
+  * the user is not set to "away"
+  * a custom status hasn't been set
+  * something is now playing on Last.fm
+  * the time is between 9am and 5pm (configurable)
+  * it's not a weekend (configurable)
+
+To clear the status it will search Last.fm for the now playing tracks duration
+and use that as the status expiration time. If there is no duration information
+it defaults to a 10 minute expiration (configurable).
 
 It looks like this:
 
