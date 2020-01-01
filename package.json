@@ -25,7 +25,7 @@
     "@types/chalk": "^2.2.0",
     "@types/date-fns": "^2.6.0",
     "@types/fs-extra": "^8.0.1",
-    "@types/hapi__joi": "^16.0.3",
+    "@types/hapi__joi": "^16.0.5",
     "@types/jest": "^24.0.22",
     "@types/node": "^12.12.14",
     "@typescript-eslint/eslint-plugin": "^2.8.0",
