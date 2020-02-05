@@ -56,6 +56,7 @@ Variable | Default | Description
 `UPDATE_WEEKENDS` | `undefined` | Provide any value to enable status updates during the weekend
 `UPDATE_EXPIRATION` | `10` | The time in minutes to use as a default status expiration length
 `SENTRY_DSN` | `undefined` | Optionally provide a Sentry DSN to enable error reporting
+`ENABLE_LOGGING` | `undefined` | Enable verbose console output
 
 ## Hosting
 

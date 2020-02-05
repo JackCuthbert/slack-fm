@@ -105,6 +105,9 @@ async function loop () {
 
 validateConfig(config)
   .then(enableErrorTracking)
+  .then(() => {
+    log('slack-fm ready', 'bot', true)
+  })
   .then(main)
   .then(loop)
   .catch(handleError)
