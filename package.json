@@ -40,7 +40,7 @@
     "semantic-release": "^15.13.31",
     "ts-jest": "^24.1.0",
     "ts-node": "^8.5.4",
-    "typescript": "^3.7.2"
+    "typescript": "^3.8.3"
   },
   "dependencies": {
     "@hapi/joi": "^16.1.8",
