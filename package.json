@@ -24,7 +24,7 @@
     "@semantic-release/release-notes-generator": "^9.0.1",
     "@types/chalk": "^2.2.0",
     "@types/date-fns": "^2.6.0",
-    "@types/fs-extra": "^8.1.0",
+    "@types/fs-extra": "^9.0.1",
     "@types/hapi__joi": "^16.0.12",
     "@types/jest": "^25.2.1",
     "@types/node": "^13.13.1",
