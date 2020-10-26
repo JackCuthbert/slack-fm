@@ -1,6 +1,12 @@
 import axios, { AxiosResponse } from 'axios'
 import * as config from '../config'
 import { log } from './log'
+import type {
+  APITrackGetInfo,
+  APIUserGetRecentTracks,
+  RecentTrack,
+  Track
+} from '../types/lastfm'
 
 /**
  * Get the most recent tracks from a users LastFM profile
@@ -10,7 +16,7 @@ import { log } from './log'
 export async function getRecentLastFmTracks (username: string) {
   log(`Getting recent track info for "${config.lastFM.username}"`, 'lastfm')
 
-  type LastFMResponse = AxiosResponse<LastFM.APIResponse.UserGetRecentTracks>
+  type LastFMResponse = AxiosResponse<APIUserGetRecentTracks>
   const url = `${config.lastFM.apiUrl}/?method=user.getrecenttracks`
   const opts = {
     params: {
@@ -35,10 +41,10 @@ export async function getRecentLastFmTracks (username: string) {
  *
  * [API Doc](https://www.last.fm/api/show/track.getInfo)
  */
-export async function getLastFmTrack (track: string, artist: string): Promise<LastFM.Track | undefined> {
+export async function getLastFmTrack (track: string, artist: string): Promise<Track | undefined> {
   log(`Getting track info for "${track}" by ${artist}`, 'lastfm')
 
-  type LastFMResponse = AxiosResponse<LastFM.APIResponse.TrackGetInfo>
+  type LastFMResponse = AxiosResponse<APITrackGetInfo>
   const url = `${config.lastFM.apiUrl}/?method=track.getInfo`
   const opts = {
     params: {
@@ -60,12 +66,12 @@ export async function getLastFmTrack (track: string, artist: string): Promise<La
 }
 
 /** Returns a LastFM track if it's considered now playing */
-export function getNowPlaying (tracks: LastFM.RecentTrack[]) {
+export function getNowPlaying (tracks: RecentTrack[]) {
   return tracks.find(track => track['@attr']?.nowplaying === 'true')
 }
 
 /** Determines if the recent track is equal to the cached track */
-export function trackIsEqual (recent: LastFM.RecentTrack, cached?: LastFM.Track) {
+export function trackIsEqual (recent: RecentTrack, cached?: Track) {
   if (cached === undefined) return false
   return recent.name === cached.name && recent.artist['#text'] === cached.artist.name
 }

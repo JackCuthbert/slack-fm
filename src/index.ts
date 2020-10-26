@@ -20,9 +20,10 @@ import {
 import { handleError, enableErrorTracking } from './utils/errors'
 import { log } from './utils/log'
 import { validateConfig } from './utils/validation'
+import type { Track } from './types/lastfm'
 
 /** Clears the slack status if the cached track has no duration */
-async function clearSlackStatus (cached: LastFM.Track | undefined) {
+async function clearSlackStatus (cached: Track | undefined) {
   if (cached && cached.duration === '0') {
     log('Cached track has no duration, clearing Slack status', 'slack')
     await setSlackStatus('')

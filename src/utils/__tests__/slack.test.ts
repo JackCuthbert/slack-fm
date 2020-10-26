@@ -1,10 +1,11 @@
 import { shouldSetStatus, calcExpiration } from '../slack'
 import { getUnixTime } from 'date-fns'
+import type { Profile } from '../../types/slack'
 
 describe('slack', () => {
   describe('shouldSetStatus', () => {
     it('returns true when the app has previously updated the profile', () => {
-      const profile: Partial<Slack.Profile> = {
+      const profile: Partial<Profile> = {
         status_emoji: ':headphones:',
         status_text: 'Some song • Some artist'
       }
@@ -13,7 +14,7 @@ describe('slack', () => {
     })
 
     it('returns true when no status is set', () => {
-      const profile: Partial<Slack.Profile> = {
+      const profile: Partial<Profile> = {
         status_emoji: '',
         status_text: ''
       }
@@ -22,7 +23,7 @@ describe('slack', () => {
     })
 
     it('returns false when a custom status is set', () => {
-      const profile: Partial<Slack.Profile> = {
+      const profile: Partial<Profile> = {
         status_emoji: ':troll:',
         status_text: 'Doing other things'
       }

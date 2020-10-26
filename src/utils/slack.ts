@@ -1,7 +1,13 @@
 import axios, { AxiosResponse } from 'axios'
+import { getUnixTime } from 'date-fns'
 import * as config from '../config'
 import { log } from './log'
-import { getUnixTime } from 'date-fns'
+import type {
+  APIUsersGetPresence,
+  APIUsersProfile,
+  Presence,
+  Profile
+} from '../types/slack'
 
 /**
  * Add the duration returned from LastFM (ms) to the current unix time
@@ -22,7 +28,7 @@ export function calcExpiration (duration: number) {
  *
  */
 export async function setSlackStatus (status: string, duration?: number) {
-  type SlackResponse = AxiosResponse<Slack.APIResponse.UsersProfile>
+  type SlackResponse = AxiosResponse<APIUsersProfile>
   const url = `${config.slack.apiUrl}/users.profile.set`
 
   const body = {
@@ -52,10 +58,10 @@ export async function setSlackStatus (status: string, duration?: number) {
  *
  * [API Doc](https://api.slack.com/methods/users.getPresence)
  */
-export async function getSlackPresence (): Promise<Slack.Presence> {
+export async function getSlackPresence (): Promise<Presence> {
   log('Getting user presence', 'slack')
 
-  type SlackResponse = AxiosResponse<Slack.APIResponse.UsersGetPresence>
+  type SlackResponse = AxiosResponse<APIUsersGetPresence>
   const url = `${config.slack.apiUrl}/users.getPresence`
   const params = {
     headers: { Authorization: `Bearer ${config.slack.token}` }
@@ -76,10 +82,10 @@ export async function getSlackPresence (): Promise<Slack.Presence> {
  *
  * [API Doc](https://api.slack.com/methods/users.profile.get)
  */
-export async function getSlackProfile (): Promise<Slack.Profile> {
+export async function getSlackProfile (): Promise<Profile> {
   log('Getting user profile', 'slack')
 
-  type SlackResponse = AxiosResponse<Slack.APIResponse.UsersProfile>
+  type SlackResponse = AxiosResponse<APIUsersProfile>
   const url = `${config.slack.apiUrl}/users.profile.get`
   const opts = {
     headers: { Authorization: `Bearer ${config.slack.token}` }
@@ -105,7 +111,7 @@ export async function getSlackProfile (): Promise<Slack.Profile> {
  * This ensures that any custom status the user has set is not overridden and
  * empty statuses are updated accordingly.
  */
-export function shouldSetStatus (profile: Slack.Profile) {
+export function shouldSetStatus (profile: Profile) {
   if (profile.status_emoji === '' && profile.status_text === '') return true
   if (profile.status_emoji === config.slack.emoji && profile.status_text.includes(' • ')) return true
   return false
