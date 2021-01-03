@@ -1,21 +1,21 @@
-import axios, { AxiosResponse } from 'axios'
-import { getUnixTime } from 'date-fns'
-import * as config from '../config'
-import { log } from './log'
+import axios, { AxiosResponse } from "axios";
+import { getUnixTime } from "date-fns";
+import * as config from "../config";
+import { log } from "./log";
 import type {
   APIUsersGetPresence,
   APIUsersProfile,
   Presence,
-  Profile
-} from '../types/slack'
+  Profile,
+} from "../types/slack";
 
 /**
  * Add the duration returned from LastFM (ms) to the current unix time
  *
  * @param duration Duration of song in milliseconds
  */
-export function calcExpiration (duration: number) {
-  return getUnixTime(new Date()) + (duration / 1000)
+export function calcExpiration(duration: number) {
+  return getUnixTime(new Date()) + duration / 1000;
 }
 
 /**
@@ -27,29 +27,29 @@ export function calcExpiration (duration: number) {
  * @param duration The time in milliseconds to keep the state
  *
  */
-export async function setSlackStatus (status: string, duration?: number) {
-  type SlackResponse = AxiosResponse<APIUsersProfile>
-  const url = `${config.slack.apiUrl}/users.profile.set`
+export async function setSlackStatus(status: string, duration?: number) {
+  type SlackResponse = AxiosResponse<APIUsersProfile>;
+  const url = `${config.slack.apiUrl}/users.profile.set`;
 
   const body = {
     profile: {
       status_text: status,
-      status_emoji: status !== '' ? config.slack.emoji : '',
-      status_expiration: duration !== undefined ? calcExpiration(duration) : 0
-    }
-  }
+      status_emoji: status !== "" ? config.slack.emoji : "",
+      status_expiration: duration !== undefined ? calcExpiration(duration) : 0,
+    },
+  };
 
   const params = {
-    headers: { Authorization: `Bearer ${config.slack.token}` }
-  }
+    headers: { Authorization: `Bearer ${config.slack.token}` },
+  };
 
   try {
-    const { data }: SlackResponse = await axios.post(url, body, params)
-    if (!data.ok) throw Error(data.error)
-    return data
+    const { data }: SlackResponse = await axios.post(url, body, params);
+    if (!data.ok) throw Error(data.error);
+    return data;
   } catch (error) {
-    if (error.response) throw Error(error.response.data.message)
-    throw error
+    if (error.response) throw Error(error.response.data.message);
+    throw error;
   }
 }
 
@@ -58,22 +58,22 @@ export async function setSlackStatus (status: string, duration?: number) {
  *
  * [API Doc](https://api.slack.com/methods/users.getPresence)
  */
-export async function getSlackPresence (): Promise<Presence> {
-  log('Getting user presence', 'slack')
+export async function getSlackPresence(): Promise<Presence> {
+  log("Getting user presence", "slack");
 
-  type SlackResponse = AxiosResponse<APIUsersGetPresence>
-  const url = `${config.slack.apiUrl}/users.getPresence`
+  type SlackResponse = AxiosResponse<APIUsersGetPresence>;
+  const url = `${config.slack.apiUrl}/users.getPresence`;
   const params = {
-    headers: { Authorization: `Bearer ${config.slack.token}` }
-  }
+    headers: { Authorization: `Bearer ${config.slack.token}` },
+  };
 
   try {
-    const { data }: SlackResponse = await axios.get(url, params)
-    if (!data.ok) throw Error(data.error)
-    return data.presence
+    const { data }: SlackResponse = await axios.get(url, params);
+    if (!data.ok) throw Error(data.error);
+    return data.presence;
   } catch (error) {
-    if (error.response) throw Error(error.response.data.message)
-    throw error
+    if (error.response) throw Error(error.response.data.message);
+    throw error;
   }
 }
 
@@ -82,22 +82,22 @@ export async function getSlackPresence (): Promise<Presence> {
  *
  * [API Doc](https://api.slack.com/methods/users.profile.get)
  */
-export async function getSlackProfile (): Promise<Profile> {
-  log('Getting user profile', 'slack')
+export async function getSlackProfile(): Promise<Profile> {
+  log("Getting user profile", "slack");
 
-  type SlackResponse = AxiosResponse<APIUsersProfile>
-  const url = `${config.slack.apiUrl}/users.profile.get`
+  type SlackResponse = AxiosResponse<APIUsersProfile>;
+  const url = `${config.slack.apiUrl}/users.profile.get`;
   const opts = {
-    headers: { Authorization: `Bearer ${config.slack.token}` }
-  }
+    headers: { Authorization: `Bearer ${config.slack.token}` },
+  };
 
   try {
-    const { data }: SlackResponse = await axios.get(url, opts)
-    if (!data.ok) throw Error(data.error)
-    return data.profile
+    const { data }: SlackResponse = await axios.get(url, opts);
+    if (!data.ok) throw Error(data.error);
+    return data.profile;
   } catch (error) {
-    if (error.response) throw Error(error.response.data.message)
-    throw error
+    if (error.response) throw Error(error.response.data.message);
+    throw error;
   }
 }
 
@@ -111,8 +111,12 @@ export async function getSlackProfile (): Promise<Profile> {
  * This ensures that any custom status the user has set is not overridden and
  * empty statuses are updated accordingly.
  */
-export function shouldSetStatus (profile: Profile) {
-  if (profile.status_emoji === '' && profile.status_text === '') return true
-  if (profile.status_emoji === config.slack.emoji && profile.status_text.includes(' • ')) return true
-  return false
+export function shouldSetStatus(profile: Profile) {
+  if (profile.status_emoji === "" && profile.status_text === "") return true;
+  if (
+    profile.status_emoji === config.slack.emoji &&
+    profile.status_text.includes(" • ")
+  )
+    return true;
+  return false;
 }
