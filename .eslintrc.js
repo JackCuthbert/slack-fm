@@ -2,8 +2,7 @@ module.exports = {
   extends: [
     'standard-with-typescript',
     'prettier',
-    'prettier/@typescript-eslint',
-    'prettier/react'
+    'prettier/@typescript-eslint'
   ],
   plugins: ['prettier'],
   rules: {
@@ -18,4 +17,3 @@ module.exports = {
     }
   }
 }
-

@@ -1,76 +1,76 @@
-interface Image {
-  size: "small" | "medium" | "large" | "extralarge";
+interface APIImage {
+  size: 'small' | 'medium' | 'large' | 'extralarge'
   /** URL */
-  "#text": string;
+  '#text': string
 }
 
-export interface RecentTrack {
+export interface APIRecentTrack {
   artist: {
-    mbid: string;
-    "#text": string;
-  };
-  "@attr"?: {
-    nowplaying: "true" | "false";
-  };
+    mbid: string
+    '#text': string
+  }
+  '@attr'?: {
+    nowplaying: 'true' | 'false'
+  }
   album: {
-    mbid: string;
-    "#text": string;
-  };
-  image: Image[];
-  streamable: string;
+    mbid: string
+    '#text': string
+  }
+  image: APIImage[]
+  streamable: string
   date: {
-    uts: string;
-    "#text": string;
-  };
-  url: string;
-  name: string;
-  mbid: string;
+    uts: string
+    '#text': string
+  }
+  url: string
+  name: string
+  mbid: string
 }
 
-export interface Tag {
-  name: string;
-  url: string;
+export interface APITag {
+  name: string
+  url: string
 }
 
-export interface Track {
-  name: string;
-  url: string;
-  duration: string;
+export interface APITrack {
+  name: string
+  url: string
+  duration: string
   streamable: {
-    "#text": string;
-    fulltrack: string;
-  };
-  listeners: string;
-  playcount: string;
+    '#text': string
+    fulltrack: string
+  }
+  listeners: string
+  playcount: string
   artist: {
-    name: string;
-    mbid: string;
-    url: string;
-  };
+    name: string
+    mbid: string
+    url: string
+  }
   album: {
-    artist: string;
-    title: string;
-    url: string;
-    image: Image[];
-  };
+    artist: string
+    title: string
+    url: string
+    image: APIImage[]
+  }
   toptags: {
-    tag: Tag[];
-  };
+    tag: APITag[]
+  }
 }
 
 export interface APIUserGetRecentTracks {
   recenttracks: {
-    "@attr": {
-      page: string;
-      total: string;
-      user: string;
-      perPage: string;
-      totalPages: string;
-    };
-    track: RecentTrack[];
-  };
+    '@attr': {
+      page: string
+      total: string
+      user: string
+      perPage: string
+      totalPages: string
+    }
+    track: APIRecentTrack[]
+  }
 }
 
 export interface APITrackGetInfo {
-  track: Track;
+  track?: APITrack
 }

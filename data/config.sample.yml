@@ -1,0 +1,16 @@
+app:
+  emoji: ':headphones:'
+  separator: '·'
+  update_interval: 1
+  update_weekends: false
+  update_hour_start: 8
+  update_hour_end: 18
+
+lastfm:
+  username: ''
+  api_key: ''
+  shared_secret: ''
+
+slack:
+  - user_id: ''
+    token: ''
