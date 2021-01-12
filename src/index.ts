@@ -1,114 +1,138 @@
-import { getTime, getHours, isWeekend } from 'date-fns'
-import * as config from './config'
-import {
-  getSlackPresence,
-  getSlackProfile,
-  setSlackStatus,
-  shouldSetStatus
-} from './utils/slack'
-import {
-  getLastFmTrack,
-  getNowPlaying,
-  getRecentLastFmTracks,
-  trackIsEqual
-} from './utils/lastFm'
-import {
-  deleteTrackJSON,
-  readTrackJSON,
-  writeTrackJSON
-} from './utils/cache'
-import { handleError, enableErrorTracking } from './utils/errors'
-import { log } from './utils/log'
-import { validateConfig } from './utils/validation'
-import type { Track } from './types/lastfm'
+import { getHours, getTime, isWeekend } from 'date-fns'
+import { truncateStatus } from './lib'
+import { Cache, Config, LastFM, Schedule, SlackAPI, log } from './services'
+import type { Track } from './services/LastFM'
 
-/** Clears the slack status if the cached track has no duration */
-async function clearSlackStatus (cached: Track | undefined) {
-  if (cached && cached.duration === '0') {
-    log('Cached track has no duration, clearing Slack status', 'slack')
-    await setSlackStatus('')
+const config = Config.load()
+
+// API Clients
+let lastFm: LastFM
+let clients: SlackAPI[]
+
+async function setup(): Promise<void> {
+  const { lastfm, slack } = Config.load()
+
+  if (lastFm === undefined) {
+    lastFm = new LastFM(lastfm.username, lastfm.api_key)
+    log(`Configured Last.fm (${lastFm.username})`, 'bot', true)
+  }
+
+  if (clients === undefined) {
+    clients = slack.map(
+      ({ user_id: userId, token }) => new SlackAPI(token, userId)
+    )
+    log(
+      `Configured ${clients.length} Slack Team${clients.length > 1 ? 's' : ''}`,
+      'bot',
+      true
+    )
+  }
+
+  log('slack-fm ready!', 'bot', true)
+}
+
+async function clearOnEnded(cachedTrack?: Track): Promise<void> {
+  if (cachedTrack === undefined) return
+  if (cachedTrack.duration !== undefined && cachedTrack.duration !== 0) return
+
+  for (const client of clients) {
+    log('Cached track is missing or has no duration, clearing status', 'bot')
+    await client.setStatus('')
   }
 }
 
-async function main () {
-  const cachedTrack = await readTrackJSON()
+async function main(): Promise<void> {
+  const cachedTrack = await Cache.readTrackJSON()
 
   // Time restrictions
+  // ---
   const currentTime = getTime(new Date())
   const currentHour = getHours(currentTime)
 
-  const { start, end } = config.activeHours
+  const { update_hour_start: start, update_hour_end: end } = config.app
   if (currentHour < start || currentHour >= end) {
     log(`Outside active hours (${start}-${end})`)
-    await clearSlackStatus(cachedTrack)
+    await clearOnEnded(cachedTrack)
     return
   }
 
-  if (!config.updateWeekends && isWeekend(currentTime)) {
+  if (isWeekend(currentTime) && !config.app.update_weekends) {
     log('Weekend updates not enabled, skipping')
-    await clearSlackStatus(cachedTrack)
+    await clearOnEnded(cachedTrack)
     return
   }
 
-  // Status restrictions
-  const currentPresence = await getSlackPresence()
-  if (currentPresence === 'away') {
-    log('User presence is "away"')
-    await clearSlackStatus(cachedTrack)
-    return
-  }
-
-  const currentProfile = await getSlackProfile()
-  if (!shouldSetStatus(currentProfile)) {
-    log('Custom status detected')
-    return
-  }
-
-  // Now playing restrictions
-  const recentTracks = await getRecentLastFmTracks(config.lastFM.username)
-  const nowPlaying = getNowPlaying(recentTracks.track)
+  // Get recent track
+  // ---
+  const tracks = await lastFm.getRecentTracks()
+  const nowPlaying = tracks.find(t => t.nowPlaying)
 
   if (nowPlaying === undefined) {
-    log('Nothing playing')
-    await clearSlackStatus(cachedTrack)
-    await deleteTrackJSON()
+    log('Nothing playing', 'bot')
+    await Cache.deleteTrackJSON()
+    await clearOnEnded(cachedTrack)
     return
   }
 
-  // Equality restriction, don't update if it's not necessary
-  if (trackIsEqual(nowPlaying, cachedTrack)) {
-    log('Now playing track is cached, no update necessary')
+  // Don't update if the now playing track does not match the cached track,
+  // otherwise cache the new track
+  // ---
+  if (
+    cachedTrack?.name.toLowerCase() === nowPlaying?.name.toLowerCase() &&
+    cachedTrack?.artist.toLowerCase() === nowPlaying?.artist.toLowerCase()
+  ) {
+    log('Now playing track is cached, no update necessary', 'bot')
     return
+  } else {
+    log('Caching track', 'bot')
+    await Cache.writeTrackJSON(nowPlaying)
   }
 
-  const track = await getLastFmTrack(nowPlaying.name, nowPlaying.artist['#text'])
-  let duration = 60 * (config.updateExpiration * 1000)
-  let status = `${nowPlaying.name} ${config.slack.separator} ${nowPlaying.artist['#text']}`
+  // Attempt to find more details (duration)
+  // ---
+  const track = await lastFm.getTrack(nowPlaying.name, nowPlaying.artist)
 
   if (track !== undefined) {
-    await writeTrackJSON(track)
-
-    status = `${track.name} ${config.slack.separator} ${track.artist.name}`
-    duration = track.duration !== '0' ? Number(track.duration) : duration
-  } else {
-    log('No detailed track info found, falling back to recent track', 'lastfm')
-    await deleteTrackJSON()
+    log('Updating cached track', 'bot')
+    await Cache.writeTrackJSON(track)
   }
 
-  log(`Setting status to "${status}"`, 'slack')
-  await setSlackStatus(status, duration)
+  // Compute new status and duration
+  // ---
+  const trackDuration = track?.duration ?? 600000 // 10 minutes
+  const trackName = track?.name ?? nowPlaying.name
+  const trackArtist = track?.artist ?? nowPlaying.artist
+
+  const status = `${trackName} ${config.app.separator} ${trackArtist}`
+
+  // Propagate updates to all Slack Teams
+  // ---
+  for (const client of clients) {
+    // Don't update if the user is away
+    const presence = await client.getPresence()
+    if (presence === 'away') continue
+
+    // Don't update if the status wasn't previously set by slack-fm
+    const profile = await client.getProfile()
+    if (
+      profile.status_text !== '' &&
+      !profile.status_text.includes(config.app.separator)
+    )
+      continue
+
+    await client.setStatus(
+      truncateStatus(status, config.app.separator),
+      trackDuration
+    )
+  }
 }
 
-async function loop () {
-  const interval = config.updateInterval * 60000
-  setInterval(() => main().catch(handleError), interval)
-}
+const interval = config.app.update_interval * 60000
+const schedule = new Schedule(main, interval)
 
-validateConfig(config)
-  .then(enableErrorTracking)
-  .then(() => {
-    log('slack-fm ready', 'bot', true)
-  })
+setup()
   .then(main)
-  .then(loop)
-  .catch(handleError)
+  .then(() => {
+    schedule.start()
+  })
+  .catch(console.error)

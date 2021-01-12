@@ -1,10 +1,10 @@
-interface Image {
+interface APIImage {
   size: 'small' | 'medium' | 'large' | 'extralarge'
   /** URL */
-  '#text' : string
+  '#text': string
 }
 
-export interface RecentTrack {
+export interface APIRecentTrack {
   artist: {
     mbid: string
     '#text': string
@@ -16,7 +16,7 @@ export interface RecentTrack {
     mbid: string
     '#text': string
   }
-  image: Image[]
+  image: APIImage[]
   streamable: string
   date: {
     uts: string
@@ -27,12 +27,12 @@ export interface RecentTrack {
   mbid: string
 }
 
-export interface Tag {
+export interface APITag {
   name: string
   url: string
 }
 
-export interface Track {
+export interface APITrack {
   name: string
   url: string
   duration: string
@@ -51,10 +51,10 @@ export interface Track {
     artist: string
     title: string
     url: string
-    image: Image[]
+    image: APIImage[]
   }
   toptags: {
-    tag: Tag[]
+    tag: APITag[]
   }
 }
 
@@ -67,10 +67,10 @@ export interface APIUserGetRecentTracks {
       perPage: string
       totalPages: string
     }
-    track: RecentTrack[]
+    track: APIRecentTrack[]
   }
 }
 
 export interface APITrackGetInfo {
-  track: Track
+  track?: APITrack
 }
