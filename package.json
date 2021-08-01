@@ -44,7 +44,7 @@
   },
   "dependencies": {
     "@hapi/joi": "^17.1.1",
-    "@sentry/node": "^5.27.1",
+    "@sentry/node": "^6.10.0",
     "axios": "^0.21.0",
     "chalk": "^4.1.0",
     "date-fns": "^2.16.1",
